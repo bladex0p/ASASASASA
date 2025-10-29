@@ -1,33 +1,14 @@
 /* -------------------------
-   Interactive PDF Voice Notes
+   Interactive PDF Voice Notes (Native PDF Version)
    ------------------------- */
 
 const pdfContainer = document.getElementById("pdf-container");
 const pdfUrl = "LBG_Gold_Account_Sales_Script.pdf"; // your PDF file
 
-// ----- Load the PDF -----
-pdfjsLib.GlobalWorkerOptions.workerSrc =
-  "https://unpkg.com/pdfjs-dist@3.11.174/build/pdf.worker.min.js";
-
-pdfjsLib.getDocument(pdfUrl).promise.then((pdf) => {
-  for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
-    pdf.getPage(pageNum).then((page) => {
-      const scale = 1.2;
-      const viewport = page.getViewport({ scale });
-      const canvas = document.createElement("canvas");
-      const context = canvas.getContext("2d");
-      canvas.height = viewport.height;
-      canvas.width = viewport.width;
-      pdfContainer.appendChild(canvas);
-
-      const renderContext = {
-        canvasContext: context,
-        viewport: viewport,
-      };
-      page.render(renderContext);
-    });
-  }
-});
+// Load PDF natively (not with pdf.js)
+pdfContainer.innerHTML = `
+  <embed src="${pdfUrl}" type="application/pdf" width="100%" height="100%" />
+`;
 
 // ----- Right-click to add controls -----
 pdfContainer.addEventListener("contextmenu", (e) => {
@@ -79,11 +60,8 @@ function addAudioControls(x, y) {
       const containerRect = pdfContainer.getBoundingClientRect();
       let newX = e.clientX - offsetX - containerRect.left;
       let newY = e.clientY - offsetY - containerRect.top;
-
-      // keep inside container bounds
       newX = Math.max(0, Math.min(newX, containerRect.width - div.offsetWidth));
       newY = Math.max(0, Math.min(newY, containerRect.height - div.offsetHeight));
-
       div.style.left = `${newX}px`;
       div.style.top = `${newY}px`;
     }
