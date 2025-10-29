@@ -5,7 +5,7 @@
 const pdfContainer = document.getElementById("pdf-container");
 const pdfUrl = "LBG_Gold_Account_Sales_Script.pdf"; // your PDF file
 
-// Load PDF natively using iframe
+// Load PDF natively
 pdfContainer.innerHTML = `
   <iframe src="${pdfUrl}" width="100%" height="100%" style="border:none;"></iframe>
 `;
@@ -13,9 +13,12 @@ pdfContainer.innerHTML = `
 // Right-click to add controls
 pdfContainer.addEventListener("contextmenu", (e) => {
   e.preventDefault();
+
+  // Coordinates relative to pdfContainer
   const rect = pdfContainer.getBoundingClientRect();
   const x = e.clientX - rect.left;
   const y = e.clientY - rect.top;
+
   addAudioControls(x, y);
 });
 
@@ -45,7 +48,7 @@ function addAudioControls(x, y) {
 
   pdfContainer.appendChild(div);
 
-  // Dragging logic
+  // --- Dragging logic ---
   let offsetX = 0, offsetY = 0, isDragging = false;
 
   div.addEventListener("mousedown", (e) => {
@@ -75,13 +78,13 @@ function addAudioControls(x, y) {
     }
   });
 
-  // Audio recording logic
+  // --- Audio recording logic ---
   let mediaRecorder, audioChunks = [], audioBlobUrl = null;
   let recording = false;
 
   const recordBtn = div.querySelector(".record");
-  const playBtn = div.querySelector(".play");
-  const pauseBtn = div.querySelector(".pause");
+  const playBtn   = div.querySelector(".play");
+  const pauseBtn  = div.querySelector(".pause");
   const deleteBtn = div.querySelector(".delete");
   const removeBarBtn = div.querySelector(".remove-bar");
   const audioElem = div.querySelector("audio");
