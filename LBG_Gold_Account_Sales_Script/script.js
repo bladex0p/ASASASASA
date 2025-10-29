@@ -1,14 +1,62 @@
 /* -------------------------
-   Interactive PDF Voice Notes (Native PDF Version)
+   Interactive PDF Voice Notes
    ------------------------- */
 
 const pdfContainer = document.getElementById("pdf-container");
-const pdfUrl = "LBG_Gold_Account_Sales_Script.pdf"; // your PDF file
+const pdfUrl = "./LBG_Gold_Account_Sales_Script.pdf"; // update per script
 
-// Load PDF natively (not with pdf.js)
-pdfContainer.innerHTML = `
-  <embed src="${pdfUrl}" type="application/pdf" width="100%" height="100%" />
-`;
+// ----- Load PDF using pdf.js -----
+pdfjsLib.GlobalWorkerOptions.workerSrc =
+  "https://unpkg.com/pdfjs-dist@3.11.174/build/pdf.worker.min.js";
+
+pdfjsLib.getDocument(pdfUrl).promise.then(async (pdf) => {
+  for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+    const page = await pdf.getPage(pageNum);
+    const scale = 1.2;
+    const viewport = page.getViewport({ scale });
+
+    // Canvas for rendering
+    const canvas = document.createElement("canvas");
+    const context = canvas.getContext("2d");
+    canvas.height = viewport.height;
+    canvas.width = viewport.width;
+    canvas.style.display = "block";
+    canvas.style.position = "relative";
+    pdfContainer.appendChild(canvas);
+
+    // Render the PDF page
+    await page.render({ canvasContext: context, viewport }).promise;
+
+    // Add text layer (for clickable hyperlinks)
+    const textLayerDiv = document.createElement("div");
+    textLayerDiv.className = "textLayer";
+    textLayerDiv.style.position = "absolute";
+    textLayerDiv.style.top = canvas.offsetTop + "px";
+    textLayerDiv.style.left = canvas.offsetLeft + "px";
+    textLayerDiv.style.width = viewport.width + "px";
+    textLayerDiv.style.height = viewport.height + "px";
+    textLayerDiv.style.pointerEvents = "none"; // default pass-through
+    pdfContainer.appendChild(textLayerDiv);
+
+    const textContent = await page.getTextContent();
+    pdfjsLib.renderTextLayer({
+      textContent,
+      container: textLayerDiv,
+      viewport,
+      textDivs: [],
+    });
+
+    // Make links clickable
+    setTimeout(() => {
+      textLayerDiv.querySelectorAll("a").forEach((a) => {
+        a.target = "_blank"; // open in new tab
+        a.style.pointerEvents = "auto"; // allow clicks
+        a.style.color = "blue";
+        a.style.textDecoration = "underline";
+      });
+    }, 500);
+  }
+});
 
 // ----- Right-click to add controls -----
 pdfContainer.addEventListener("contextmenu", (e) => {
