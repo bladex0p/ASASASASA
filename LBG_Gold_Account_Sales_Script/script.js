@@ -1,37 +1,63 @@
 /* -------------------------
-   Interactive PDF Voice Notes (Overlay Method)
+   Interactive PDF Voice Notes
    ------------------------- */
 
 const pdfContainer = document.getElementById("pdf-container");
 const pdfUrl = "LBG_Gold_Account_Sales_Script.pdf"; // your PDF file
 
-// Step 1: Load PDF natively using iframe
-pdfContainer.style.position = "relative"; // ensure overlay positioning
-pdfContainer.innerHTML = `
-  <iframe src="${pdfUrl}" width="100%" height="100%" style="border:none;"></iframe>
-`;
+// Load PDF.js worker
+pdfjsLib.GlobalWorkerOptions.workerSrc =
+  "https://unpkg.com/pdfjs-dist@3.11.174/build/pdf.worker.min.js";
 
-// Step 2: Add a transparent overlay div on top of the PDF
-const overlay = document.createElement("div");
-overlay.style.position = "absolute";
-overlay.style.top = "0";
-overlay.style.left = "0";
-overlay.style.width = "100%";
-overlay.style.height = "100%";
-overlay.style.background = "transparent";
-overlay.style.zIndex = "999"; // on top of the PDF
-pdfContainer.appendChild(overlay);
+// Render PDF
+pdfjsLib.getDocument(pdfUrl).promise.then(async (pdf) => {
+  for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+    const page = await pdf.getPage(pageNum);
+    const scale = 1.2;
+    const viewport = page.getViewport({ scale });
 
-// Step 3: Right-click to add controls
-overlay.addEventListener("contextmenu", (e) => {
+    // Canvas for PDF page
+    const canvas = document.createElement("canvas");
+    const context = canvas.getContext("2d");
+    canvas.height = viewport.height;
+    canvas.width = viewport.width;
+    canvas.style.display = "block";
+    canvas.style.marginBottom = "10px";
+    pdfContainer.appendChild(canvas);
+
+    // Render PDF page
+    await page.render({ canvasContext: context, viewport }).promise;
+
+    // Render links only
+    const annotations = await page.getAnnotations({ intent: "display" });
+    annotations.forEach((annotation) => {
+      if (annotation.subtype === "Link" && annotation.url) {
+        const link = document.createElement("a");
+        link.href = annotation.url;
+        link.target = "_blank";
+        link.style.position = "absolute";
+        link.style.left = `${annotation.rect[0] * scale}px`;
+        link.style.top = `${canvas.offsetTop + (viewport.height - annotation.rect[3] * scale)}px`;
+        link.style.width = `${(annotation.rect[2] - annotation.rect[0]) * scale}px`;
+        link.style.height = `${(annotation.rect[3] - annotation.rect[1]) * scale}px`;
+        link.style.zIndex = 50;
+        link.style.background = "rgba(0,0,255,0.1)"; // optional: temporary highlight
+        pdfContainer.appendChild(link);
+      }
+    });
+  }
+});
+
+// ----- Right-click to add controls -----
+pdfContainer.addEventListener("contextmenu", (e) => {
   e.preventDefault();
-  const rect = overlay.getBoundingClientRect();
+  const rect = pdfContainer.getBoundingClientRect();
   const x = e.clientX - rect.left;
   const y = e.clientY - rect.top;
   addAudioControls(x, y);
 });
 
-// Step 4: Function to add draggable audio controls
+// ----- Draggable audio controls function -----
 function addAudioControls(x, y) {
   const div = document.createElement("div");
   div.className = "audio-controls";
@@ -59,7 +85,6 @@ function addAudioControls(x, y) {
 
   // --- Dragging logic ---
   let offsetX = 0, offsetY = 0, isDragging = false;
-
   div.addEventListener("mousedown", (e) => {
     if (e.target.tagName === "BUTTON" || e.target.tagName === "AUDIO") return;
     isDragging = true;
@@ -70,11 +95,11 @@ function addAudioControls(x, y) {
 
   document.addEventListener("mousemove", (e) => {
     if (isDragging) {
-      const containerRect = pdfContainer.getBoundingClientRect();
-      let newX = e.clientX - offsetX - containerRect.left;
-      let newY = e.clientY - offsetY - containerRect.top;
-      newX = Math.max(0, Math.min(newX, containerRect.width - div.offsetWidth));
-      newY = Math.max(0, Math.min(newY, containerRect.height - div.offsetHeight));
+      const rect = pdfContainer.getBoundingClientRect();
+      let newX = e.clientX - offsetX - rect.left;
+      let newY = e.clientY - offsetY - rect.top;
+      newX = Math.max(0, Math.min(newX, rect.width - div.offsetWidth));
+      newY = Math.max(0, Math.min(newY, rect.height - div.offsetHeight));
       div.style.left = `${newX}px`;
       div.style.top = `${newY}px`;
     }
@@ -92,8 +117,8 @@ function addAudioControls(x, y) {
   let recording = false;
 
   const recordBtn = div.querySelector(".record");
-  const playBtn   = div.querySelector(".play");
-  const pauseBtn  = div.querySelector(".pause");
+  const playBtn = div.querySelector(".play");
+  const pauseBtn = div.querySelector(".pause");
   const deleteBtn = div.querySelector(".delete");
   const removeBarBtn = div.querySelector(".remove-bar");
   const audioElem = div.querySelector("audio");
