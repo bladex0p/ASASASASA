@@ -1,40 +1,48 @@
 /* -------------------------
-   Interactive PDF Voice Notes
+   Interactive PDF Voice Notes (Overlay + Add Button)
    ------------------------- */
 
 const pdfContainer = document.getElementById("pdf-container");
 const pdfUrl = "LBG_Gold_Account_Sales_Script.pdf"; // your PDF file
 
-// Display PDF natively
+// Step 1: Load PDF natively using iframe
+pdfContainer.style.position = "relative"; // allow absolute positioning of overlays
 pdfContainer.innerHTML = `
-  <div style="position: relative; width: 100%; height: 100%;">
-    <embed src="${pdfUrl}" type="application/pdf" width="100%" height="100%" />
-    <button id="add-audio-btn" 
-      style="
-        position: absolute; 
-        top: 10px; 
-        right: 10px; 
-        z-index: 1000; 
-        font-size: 24px; 
-        cursor: pointer;
-        background: rgba(255,255,255,0.8);
-        border: none;
-        border-radius: 50%;
-        width: 40px;
-        height: 40px;
-      "
-      title="Add Audio Controls"
-    >+</button>
-  </div>
+  <iframe src="${pdfUrl}" width="100%" height="100%" style="border:none;"></iframe>
+  <button id="add-audio-btn" 
+    style="
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      z-index: 1000;
+      font-size: 24px;
+      cursor: pointer;
+      background: rgba(255,255,255,0.8);
+      border: none;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+    "
+    title="Add Audio Controls"
+  >+</button>
 `;
 
-// Get reference to the button
-const addAudioBtn = document.getElementById("add-audio-btn");
+// Step 2: Add overlay div on top of PDF for dragging
+const overlay = document.createElement("div");
+overlay.style.position = "absolute";
+overlay.style.top = "0";
+overlay.style.left = "0";
+overlay.style.width = "100%";
+overlay.style.height = "100%";
+overlay.style.background = "transparent";
+overlay.style.zIndex = "999"; // on top of PDF but below the + button
+pdfContainer.appendChild(overlay);
 
-// When clicked, add draggable audio control
-addAudioBtn.addEventListener("click", (e) => {
-  // Position the new control bar near the button initially
-  addAudioControls(60, 60);
+// Step 3: Click the "+" button to add a draggable audio bar
+const addAudioBtn = document.getElementById("add-audio-btn");
+addAudioBtn.addEventListener("click", () => {
+  // Add it somewhere near the top-left initially
+  addAudioControls(50, 50);
 });
 
 // ----- Function to add draggable audio controls -----
@@ -65,6 +73,7 @@ function addAudioControls(x, y) {
 
   // --- Dragging logic ---
   let offsetX = 0, offsetY = 0, isDragging = false;
+
   div.addEventListener("mousedown", (e) => {
     if (e.target.tagName === "BUTTON" || e.target.tagName === "AUDIO") return;
     isDragging = true;
