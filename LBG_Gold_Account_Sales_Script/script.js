@@ -5,59 +5,39 @@
 const pdfContainer = document.getElementById("pdf-container");
 const pdfUrl = "LBG_Gold_Account_Sales_Script.pdf"; // your PDF file
 
-// Load PDF.js worker
-pdfjsLib.GlobalWorkerOptions.workerSrc =
-  "https://unpkg.com/pdfjs-dist@3.11.174/build/pdf.worker.min.js";
+// Display PDF natively
+pdfContainer.innerHTML = `
+  <div style="position: relative; width: 100%; height: 100%;">
+    <embed src="${pdfUrl}" type="application/pdf" width="100%" height="100%" />
+    <button id="add-audio-btn" 
+      style="
+        position: absolute; 
+        top: 10px; 
+        right: 10px; 
+        z-index: 1000; 
+        font-size: 24px; 
+        cursor: pointer;
+        background: rgba(255,255,255,0.8);
+        border: none;
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+      "
+      title="Add Audio Controls"
+    >+</button>
+  </div>
+`;
 
-// Render PDF
-pdfjsLib.getDocument(pdfUrl).promise.then(async (pdf) => {
-  for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
-    const page = await pdf.getPage(pageNum);
-    const scale = 1.2;
-    const viewport = page.getViewport({ scale });
+// Get reference to the button
+const addAudioBtn = document.getElementById("add-audio-btn");
 
-    // Canvas for PDF page
-    const canvas = document.createElement("canvas");
-    const context = canvas.getContext("2d");
-    canvas.height = viewport.height;
-    canvas.width = viewport.width;
-    canvas.style.display = "block";
-    canvas.style.marginBottom = "10px";
-    pdfContainer.appendChild(canvas);
-
-    // Render PDF page
-    await page.render({ canvasContext: context, viewport }).promise;
-
-    // Render links only
-    const annotations = await page.getAnnotations({ intent: "display" });
-    annotations.forEach((annotation) => {
-      if (annotation.subtype === "Link" && annotation.url) {
-        const link = document.createElement("a");
-        link.href = annotation.url;
-        link.target = "_blank";
-        link.style.position = "absolute";
-        link.style.left = `${annotation.rect[0] * scale}px`;
-        link.style.top = `${canvas.offsetTop + (viewport.height - annotation.rect[3] * scale)}px`;
-        link.style.width = `${(annotation.rect[2] - annotation.rect[0]) * scale}px`;
-        link.style.height = `${(annotation.rect[3] - annotation.rect[1]) * scale}px`;
-        link.style.zIndex = 50;
-        link.style.background = "rgba(0,0,255,0.1)"; // optional: temporary highlight
-        pdfContainer.appendChild(link);
-      }
-    });
-  }
+// When clicked, add draggable audio control
+addAudioBtn.addEventListener("click", (e) => {
+  // Position the new control bar near the button initially
+  addAudioControls(60, 60);
 });
 
-// ----- Right-click to add controls -----
-pdfContainer.addEventListener("contextmenu", (e) => {
-  e.preventDefault();
-  const rect = pdfContainer.getBoundingClientRect();
-  const x = e.clientX - rect.left;
-  const y = e.clientY - rect.top;
-  addAudioControls(x, y);
-});
-
-// ----- Draggable audio controls function -----
+// ----- Function to add draggable audio controls -----
 function addAudioControls(x, y) {
   const div = document.createElement("div");
   div.className = "audio-controls";
@@ -117,8 +97,8 @@ function addAudioControls(x, y) {
   let recording = false;
 
   const recordBtn = div.querySelector(".record");
-  const playBtn = div.querySelector(".play");
-  const pauseBtn = div.querySelector(".pause");
+  const playBtn   = div.querySelector(".play");
+  const pauseBtn  = div.querySelector(".pause");
   const deleteBtn = div.querySelector(".delete");
   const removeBarBtn = div.querySelector(".remove-bar");
   const audioElem = div.querySelector("audio");
