@@ -3,7 +3,7 @@
    ------------------------- */
 
 const pdfContainer = document.getElementById("pdf-container");
-const pdfUrl = "NWG_Ulster_Bank_Sales_Script.pdf"; // your PDF file
+const pdfUrl = "LBG_Gold_Account_Sales_Script.pdf"; // your PDF file
 
 // Load PDF natively
 pdfContainer.innerHTML = `
