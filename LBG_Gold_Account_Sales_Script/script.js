@@ -1,28 +1,25 @@
 /* -------------------------
-   Interactive PDF Voice Notes (Native PDF Version)
+   Interactive PDF Voice Notes
    ------------------------- */
 
 const pdfContainer = document.getElementById("pdf-container");
 const pdfUrl = "LBG_Gold_Account_Sales_Script.pdf"; // your PDF file
 
-// Load PDF natively
+// Load PDF natively using iframe
 pdfContainer.innerHTML = `
   <iframe src="${pdfUrl}" width="100%" height="100%" style="border:none;"></iframe>
 `;
 
-// ----- Right-click to add controls -----
+// Right-click to add controls
 pdfContainer.addEventListener("contextmenu", (e) => {
   e.preventDefault();
-
-  // Calculate relative coordinates inside pdfContainer
   const rect = pdfContainer.getBoundingClientRect();
   const x = e.clientX - rect.left;
   const y = e.clientY - rect.top;
-
   addAudioControls(x, y);
 });
 
-// ----- Function to add draggable audio controls -----
+// Function to add draggable audio controls
 function addAudioControls(x, y) {
   const div = document.createElement("div");
   div.className = "audio-controls";
@@ -48,7 +45,7 @@ function addAudioControls(x, y) {
 
   pdfContainer.appendChild(div);
 
-  // --- Dragging logic ---
+  // Dragging logic
   let offsetX = 0, offsetY = 0, isDragging = false;
 
   div.addEventListener("mousedown", (e) => {
@@ -78,7 +75,7 @@ function addAudioControls(x, y) {
     }
   });
 
-  // --- Audio recording logic ---
+  // Audio recording logic
   let mediaRecorder, audioChunks = [], audioBlobUrl = null;
   let recording = false;
 
