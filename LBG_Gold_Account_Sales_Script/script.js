@@ -1,3 +1,8 @@
+console.log("script.js loaded");
+const addAudioBtn = document.getElementById("add-audio-btn");
+console.log("Button:", addAudioBtn);
+
+
 const pdfContainer = document.getElementById("pdf-container");
 const pdfUrl = "LBG_Gold_Account_Sales_Script.pdf"; // your PDF file
 
