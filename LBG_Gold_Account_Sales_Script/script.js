@@ -1,5 +1,4 @@
 console.log("script.js loaded");
-const addAudioBtn = document.getElementById("add-audio-btn");
 console.log("Button:", addAudioBtn);
 
 
