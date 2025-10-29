@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Interactive PDF Voice Scripts</title>
+  <style>
+    body {
+      font-family: system-ui, sans-serif;
+      background: #f5f7fa;
+      margin: 0;
+      padding: 2rem;
+    }
+    h1 {
+      text-align: center;
+      color: #222;
+      margin-bottom: 2rem;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 1rem;
+      max-width: 1200px;
+      margin: auto;
+    }
+    .card {
+      background: white;
+      border-radius: 12px;
+      padding: 1.5rem;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      text-align: center;
+      transition: all 0.25s;
+      cursor: pointer;
+    }
+    .card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+    }
+    .card a {
+      text-decoration: none;
+      color: #007bff;
+      font-weight: 600;
+      font-size: 1rem;
+      display: block;
+      margin-top: 0.5rem;
+    }
+    .card svg {
+      width: 48px;
+      height: 48px;
+      fill: #007bff;
+    }
+  </style>
+</head>
+<body>
+  <h1>Interactive PDF Voice Scripts</h1>
+  <div class="grid" id="scriptList"></div>
+
+  <script>
+    // ✅ List of your script folders (relative to this file)
+    const scripts = [
+      "LBG_Gold_Account_Sales_Script",
+      "LBG_HICA_Sales_Script",
+      "LBG_Island_Gold_Account_Sales_Script",
+      "LBG_Island_Premier_Account_Sales_Script",
+      "LBG_PB_Premier_Account_Sales_Script",
+      "LBG_Platinum_Account_Sales_Script",
+      "LBG_Pre_Account_Sales_Script",
+      "LBG_Premier_Account_Sales_Script",
+      "LBG_Silver_Account_Sales_Script",
+      "LBG_URCA_Account_Sales_Script",
+      "NWG_Black_Account_Sales_Script",
+      "NWG_Platinum_Account_Sales_Script",
+      "NWG_Pre_Account_Screening",
+      "NWG_Silver_Account_Sales_Script",
+      "NWG_Ulster_Bank_Sales_Script"
+    ];
+
+    const grid = document.getElementById("scriptList");
+
+    scripts.forEach(folder => {
+      const card = document.createElement("div");
+      card.className = "card";
+      card.innerHTML = `
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+          <path d="M6 2a2 2 0 0 0-2 2v16c0 1.1.9 2 2 2h12a2 2 0 0 0 2-2V8l-6-6H6zM6 20V4h7v5h5v11H6z"/>
+        </svg>
+        <a href="./${folder}/index.html">${folder}</a>
+      `;
+      grid.appendChild(card);
+    });
+  </script>
+</body>
+</html>

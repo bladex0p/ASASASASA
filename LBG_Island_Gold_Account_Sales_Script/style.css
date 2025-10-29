@@ -1,0 +1,26 @@
+body {
+  font-family: system-ui, sans-serif;
+  background: #f5f5f5;
+  margin: 20px;
+}
+#pdf-container canvas {
+  display: block;
+  margin: 0 auto 40px auto;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+.audio-controls {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+button {
+  padding: 6px 10px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+}
+button.record { background: #e74c3c; color: #fff; }
+button.play   { background: #2ecc71; color: #fff; }
+button.pause  { background: #f1c40f; color: #fff; }
+button.delete { background: #95a5a6; color: #fff; }
