@@ -1,28 +1,37 @@
 /* -------------------------
-   Interactive PDF Voice Notes
+   Interactive PDF Voice Notes (Overlay Method)
    ------------------------- */
 
 const pdfContainer = document.getElementById("pdf-container");
 const pdfUrl = "LBG_Gold_Account_Sales_Script.pdf"; // your PDF file
 
-// Load PDF natively
+// Step 1: Load PDF natively using iframe
+pdfContainer.style.position = "relative"; // ensure overlay positioning
 pdfContainer.innerHTML = `
   <iframe src="${pdfUrl}" width="100%" height="100%" style="border:none;"></iframe>
 `;
 
-// Right-click to add controls
-pdfContainer.addEventListener("contextmenu", (e) => {
-  e.preventDefault();
+// Step 2: Add a transparent overlay div on top of the PDF
+const overlay = document.createElement("div");
+overlay.style.position = "absolute";
+overlay.style.top = "0";
+overlay.style.left = "0";
+overlay.style.width = "100%";
+overlay.style.height = "100%";
+overlay.style.background = "transparent";
+overlay.style.zIndex = "999"; // on top of the PDF
+pdfContainer.appendChild(overlay);
 
-  // Coordinates relative to pdfContainer
-  const rect = pdfContainer.getBoundingClientRect();
+// Step 3: Right-click to add controls
+overlay.addEventListener("contextmenu", (e) => {
+  e.preventDefault();
+  const rect = overlay.getBoundingClientRect();
   const x = e.clientX - rect.left;
   const y = e.clientY - rect.top;
-
   addAudioControls(x, y);
 });
 
-// Function to add draggable audio controls
+// Step 4: Function to add draggable audio controls
 function addAudioControls(x, y) {
   const div = document.createElement("div");
   div.className = "audio-controls";
